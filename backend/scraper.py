@@ -9,6 +9,12 @@ import os
 # The value will be another dictionary holding the mention count and a list of all comments
 stock_data = {}
 
+ticker_blacklist = {
+    'A', 'I', 'IT', 'ON', 'SO', 'ARE', 'NOW', 'HAS', 'ALL', 'WELL', 'DAY',
+    'FOR', 'IS', 'OF', 'TO', 'BE', 'GO', 'OR', 'IN', 'AT', 'BY', 'DD', 'CEO', 'BRO', 'LOW',
+    'HES', 'AND', 'THE', 'AN', 'AS', 'BUT', 'NOT', 'NO', 'OUT', 'UP', 'DOWN', 'OFF', 'ONE', 'TWO', 'THREE', 'FOUR', 'FIVE', 'SIX', 'SEVEN', 'EIGHT', 'NINE', 'TEN', 'FROM', 'WITH', 'THAT', 'THIS', 'THEN', 'THAN', 'CAN', 'DO', 'IF', 'INTO', 'JUST', 'LIKE', 'MAKE', 'MORE', 'MOST', 'OVER', 'SEE', 'SOME', 'TAKE', 'TIME', 'VERY', 'WAY', 'WHO', 'WHY', 'YES', 'YOU', 'YOUR', 'YET', 'ALL', 'ANY', 'EACH', 'EVERY', 'FEW', 'MANY', 'MUCH', 'OTHER', 'OUR', 'SAME', 'SO', 'SUCH', 'THOSE', 'THESE', 'TOO', 'UNDER', 'UNTIL', 'WHILE', 'WHERE', 'WHICH', 'WHAT', 'WHEN', 'WHOM', 'WHOSE', 'WOULD', 'SHOULD', 'COULD', 'MIGHT', 'MUST', 'WILL', 'SHALL', 'MAY', 'DOES', 'DID', 'DONE', 'GET', 'GOT', 'GIVE', 'GIVEN', 'GOES', 'GOING', 'HAD', 'HAS', 'HAVE', 'HAVING', 'HE', 'HER', 'HIM', 'HIS', 'HOW', 'IT', 'ITS', 'LET', 'ME', 'MY', 'NO', 'NOT', 'OF', 'ON', 'ONCE', 'ONLY', 'OR', 'OUR', 'OUT', 'OVER', 'OWN', 'SHE', 'SO', 'SOME', 'SUCH', 'THAN', 'THAT', 'THE', 'THEIR', 'THEM', 'THEN', 'THERE', 'THESE', 'THEY', 'THIS', 'THOSE', 'THOUGH', 'THREE', 'THROUGH', 'THUS', 'TO', 'TOO', 'UNDER', 'UNTIL', 'UP', 'UPON', 'US', 'VERY', 'WAS', 'WE', 'WERE', 'WHAT', 'WHEN', 'WHERE', 'WHICH', 'WHILE', 'WHO', 'WHOM', 'WHY', 'WITH', 'WOULD', 'YES', 'YET', 'YOU', 'YOUR'
+}
+
 def load_tickers_from_csv(filename):
     """Loads stock tickers from a CSV file into a Python set. Tries both local and backend/ paths."""
     try:
@@ -51,7 +57,7 @@ for subreddit_name in subreddit_names:
     print(f"Processing subreddit: {subreddit_name}")
     subreddit = reddit.subreddit(subreddit_name)
 
-    for post in subreddit.hot(limit=10):
+    for post in subreddit.hot(limit=25):
         print("--- POST ---")
         print("Title:", post.title)
 
@@ -67,7 +73,7 @@ for subreddit_name in subreddit_names:
             for word in words:
                 # Remove punctuation from the word
                 cleaned_word = word.strip('.,?!-$')
-                if cleaned_word in tickers:
+                if cleaned_word in tickers and cleaned_word not in ticker_blacklist:
                     # This is a ticker we are tracking!
 
                     # If we've never seen this ticker before, add it to our dictionary

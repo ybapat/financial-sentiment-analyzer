@@ -16,9 +16,7 @@
         /* Use the Inter font family */
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0a0a0a;
-            background-image: radial-gradient(#1a1a1a 1px, transparent 1px);
-            background-size: 20px 20px;
+            background: linear-gradient(135deg, #18181b 0%, #23272f 50%, #0a0a0a 100%) !important;
         }
         /* Custom animation for the loading spinner */
         @keyframes spin {
@@ -36,24 +34,81 @@
         .card-appear {
             animation: fade-in-up 0.5s ease-out forwards;
         }
+        /* Neon text effect for header */
+        .neon-text {
+            text-shadow: 0 0 8px #6366f1, 0 0 16px #a21caf, 0 0 32px #f472b6;
+        }
+        /* Button glow effect */
+        .glow-btn {
+            box-shadow: 0 0 16px 2px #a21caf, 0 0 8px 2px #6366f1;
+        }
         /* Style for the card background glow */
         .buy-glow {
-            box-shadow: 0 0 20px rgba(34, 197, 94, 0.2), 0 0 8px rgba(34, 197, 94, 0.15);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.3), 0 0 8px rgba(79, 70, 229, 0.2);
+        }
+        #chart-modal .bg-gray-900 {
+            background: #18181b !important;
+        }
+        /* Navigation button styles */
+        .main-btn {
+            @apply inline-block px-6 py-3 text-lg font-semibold rounded-full transition-all duration-300;
+            background: linear-gradient(90deg, #6366f1, #a21caf);
+            color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .main-btn:hover {
+            @apply scale-105;
+            background: linear-gradient(90deg, #a21caf, #6366f1);
         }
     </style>
 </head>
-<body class="text-gray-200 antialiased">
+<body class="text-gray-200 antialiased bg-gradient-to-br from-gray-900 via-gray-950 to-black min-h-screen">
 
     <div class="min-h-screen flex flex-col items-center p-4 pt-8 md:pt-12">
         <!-- Header Section -->
         <header class="text-center mb-8">
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight">Listening Trader</h1>
+            <div class="flex justify-center mb-4">
+                <!-- Cartoon Bull with Headphones Logo -->
+                <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <!-- Bull Head -->
+                    <ellipse cx="36" cy="40" rx="18" ry="16" fill="#a21caf" stroke="#23272f" stroke-width="2"/>
+                    <!-- Bull Nose -->
+                    <ellipse cx="36" cy="52" rx="7" ry="4" fill="#ffe600" stroke="#23272f" stroke-width="1.5"/>
+                    <!-- Nostrils -->
+                    <ellipse cx="33" cy="52" rx="1" ry="1.5" fill="#23272f"/>
+                    <ellipse cx="39" cy="52" rx="1" ry="1.5" fill="#23272f"/>
+                    <!-- Eyes -->
+                    <ellipse cx="31" cy="42" rx="2" ry="2.5" fill="#fff"/>
+                    <ellipse cx="41" cy="42" rx="2" ry="2.5" fill="#fff"/>
+                    <ellipse cx="31" cy="43" rx="1" ry="1.2" fill="#23272f"/>
+                    <ellipse cx="41" cy="43" rx="1" ry="1.2" fill="#23272f"/>
+                    <!-- Smile -->
+                    <path d="M33 48 Q36 50 39 48" stroke="#43ff7b" stroke-width="2" fill="none"/>
+                    <!-- Horns -->
+                    <path d="M18 32 Q10 20 28 24" stroke="#ffe600" stroke-width="3" fill="none"/>
+                    <path d="M54 32 Q62 20 44 24" stroke="#ffe600" stroke-width="3" fill="none"/>
+                    <!-- Headphones -->
+                    <ellipse cx="24" cy="40" rx="4" ry="5" fill="#43ff7b" stroke="#23272f" stroke-width="1.5"/>
+                    <ellipse cx="48" cy="40" rx="4" ry="5" fill="#43ff7b" stroke="#23272f" stroke-width="1.5"/>
+                    <rect x="24" y="36" width="24" height="8" rx="4" fill="#23272f" stroke="#43ff7b" stroke-width="1.5"/>
+                </svg>
+            </div>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg neon-text">Listening Trader</h1>
             <p class="text-lg text-gray-400 mt-2">AI-Powered Market Sentiment Analysis</p>
         </header>
 
+        <!-- Navigation Bar -->
+        <nav class="w-full flex justify-center py-4 mb-6 gap-4">
+            <!-- Home button removed from homepage -->
+            <a href="how-it-works.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">How It Works</a>
+            <a href="trending.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Trending</a>
+            <a href="movers.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Biggest Movers</a>
+            <a href="improved.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Most Improved</a>
+        </nav>
+
         <!-- Control Section -->
         <div class="mb-10 text-center">
-            <button id="analyze-btn" class="bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center mx-auto">
+            <button id="analyze-btn" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white font-bold py-3 px-8 rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center mx-auto glow-btn">
                 <span id="btn-text">Analyze Market Sentiment</span>
                 <!-- Loading spinner, hidden by default -->
                 <svg id="spinner" class="animate-spin-slow h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -65,8 +120,8 @@
         </div>
 
         <!-- Sort Controls -->
-        <div id="sort-controls" class="mb-6 hidden flex items-center space-x-2 p-1 bg-gray-800 rounded-full">
-             <button id="sort-mentions-btn" class="sort-btn bg-indigo-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold">Most Mentions</button>
+        <div id="sort-controls" class="mb-6 hidden flex items-center space-x-2 p-1 bg-gray-800 rounded-full shadow-lg">
+             <button id="sort-mentions-btn" class="sort-btn bg-indigo-600 text-white px-4 py-1.5 rounded-full text-sm font-semibold shadow-md">Most Mentions</button>
              <button id="sort-score-btn" class="sort-btn text-gray-400 px-4 py-1.5 rounded-full text-sm font-semibold">Highest Score</button>
         </div>
 
@@ -82,8 +137,8 @@
         </main>
 
         <!-- Loading Overlay -->
-        <div id="loading-overlay" class="hidden fixed inset-0 bg-gray-900/80 backdrop-blur-md flex flex-col items-center justify-center z-50 transition-opacity duration-300">
-            <svg class="animate-spin-slow h-12 w-12 text-indigo-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+        <div id="loading-overlay" class="hidden fixed inset-0 bg-gradient-to-br from-indigo-900 via-gray-900 to-black bg-opacity-90 backdrop-blur-md flex flex-col items-center justify-center z-50 transition-opacity duration-300">
+            <svg class="animate-spin-slow h-12 w-12 text-pink-400 drop-shadow-lg" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
             <p class="text-white text-xl font-semibold mt-6">Analyzing Reddit... Please wait.</p>
             <div class="mt-12 text-center w-full max-w-md h-12 relative">
                 <span id="fun-fact" class="fact-animate"></span>
@@ -91,12 +146,12 @@
         </div>
 
         <!-- Chart Modal -->
-        <div id="chart-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center p-4 z-50">
-            <div class="bg-gray-800 rounded-lg shadow-xl w-full max-w-3xl p-6 relative">
+        <div id="chart-modal" class="modal hidden fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center p-4 z-50">
+            <div class="bg-gray-900 rounded-lg shadow-2xl w-full max-w-3xl p-6 relative border border-indigo-700">
                 <button id="close-modal-btn" type="button" class="absolute top-3 right-3 text-gray-400 hover:text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
-                <h2 class="text-2xl font-bold mb-4" id="chart-ticker-title"></h2>
+                <h2 class="text-2xl font-bold mb-4 text-indigo-300" id="chart-ticker-title"></h2>
                 <div>
                     <canvas id="sentiment-chart"></canvas>
                 </div>
@@ -125,7 +180,7 @@
         let sentimentChart;
         let factInterval;
         let currentData = {}; // Store the fetched data globally
-        let currentSort = 'mentions'; // 'mentions' or 'score'
+        let currentSort = 'score'; // Default to sort by rating
         // Fun facts array
         const funFacts = [
             "The term 'bear' and 'bull' market are thought to originate from how the animals attack; a bull thrusts its horns up, a bear swipes its paws down.",
@@ -140,6 +195,14 @@
         sortMentionsBtn.addEventListener('click', () => setSort('mentions'));
         sortScoreBtn.addEventListener('click', () => setSort('score'));
         closeModalBtn.addEventListener('click', () => chartModal.classList.add('hidden'));
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Set sort button styles to match default sort
+            sortScoreBtn.classList.add('bg-indigo-600', 'text-white');
+            sortScoreBtn.classList.remove('text-gray-400');
+            sortMentionsBtn.classList.remove('bg-indigo-600', 'text-white');
+            sortMentionsBtn.classList.add('text-gray-400');
+        });
 
         function startFactRotator() {
             let factIndex = 0;
@@ -220,34 +283,43 @@
         }
 
         function renderResults() {
-            resultsGrid.innerHTML = ''; // Clear previous results
-
+            resultsGrid.innerHTML = '';
             const sortedTickers = Object.keys(currentData).sort((a, b) => {
                 if (currentSort === 'score') {
                     return currentData[b].score - currentData[a].score;
                 }
-                return currentData[b].mentions - currentData[a].mentions; // Default to mentions
+                return currentData[b].mentions - currentData[a].mentions;
             });
-            
             sortedTickers.forEach((ticker, index) => {
                 const stock = currentData[ticker];
+                // Use backend-provided box_color for gradient
+                let gradient = stock.box_color || '';
+                if (!gradient) {
+                    if (stock.sentiment === 'BUY') {
+                        gradient = 'linear-gradient(90deg, #43ff7b 0%, #a21caf 100%)'; // bright green left, purple right
+                    } else if (stock.sentiment === 'SELL') {
+                        gradient = 'linear-gradient(90deg, #ff2e2e 0%, #a21caf 100%)'; // bright red left, purple right
+                    } else {
+                        gradient = 'linear-gradient(90deg, #ffe600 0%, #a21caf 100%)'; // bright yellow left, purple right
+                    }
+                }
                 const card = document.createElement('div');
-                card.className = 'bg-gray-800/50 backdrop-blur-sm p-5 rounded-xl border border-gray-700 shadow-lg buy-glow card-appear cursor-pointer transform hover:-translate-y-1 transition-transform';
+                card.className = `backdrop-blur-sm p-5 rounded-xl border border-gray-700 shadow-lg card-appear cursor-pointer transform hover:-translate-y-1 transition-transform`;
                 card.style.animationDelay = `${index * 50}ms`;
-                
+                card.style.background = gradient;
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
-                        <h2 class="text-3xl font-bold text-white">${ticker}</h2>
-                        <span class="text-sm font-semibold py-1 px-3 rounded-full text-green-300 bg-green-500/10 border border-green-500/20">${stock.sentiment}</span>
+                        <h2 class="text-3xl font-bold text-white drop-shadow">${ticker}</h2>
+                        <span class="text-sm font-semibold py-1 px-3 rounded-full ${stock.sentiment === 'BUY' ? 'bg-green-400 text-green-900' : stock.sentiment === 'SELL' ? 'bg-red-400 text-red-900' : 'bg-yellow-300 text-black'} border border-gray-300/40">${stock.sentiment}</span>
                     </div>
-                    <div class="space-y-3 text-gray-300">
+                    <div class="space-y-3 text-gray-900">
                         <div class="flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V4a2 2 0 012-2h8z" /></svg>
-                            <p><span class="font-medium text-gray-400">Mentions:</span> ${stock.mentions}</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a2 2 0 01-2-2V4a2 2 0 012-2h8z" /></svg>
+                            <p><span class="font-medium text-gray-700">Mentions:</span> ${stock.mentions}</p>
                         </div>
                         <div class="flex items-center space-x-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
-                            <p><span class="font-medium text-gray-400">Sentiment Score:</span> ${stock.score}</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-700" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3.293 9.707a1 1 0 010-1.414l6-6a1 1 0 011.414 0l6 6a1 1 0 01-1.414 1.414L11 5.414V17a1 1 0 11-2 0V5.414L4.707 9.707a1 1 0 01-1.414 0z" clip-rule="evenodd" /></svg>
+                            <p><span class="font-medium text-gray-700">Sentiment Score:</span> ${stock.score}</p>
                         </div>
                     </div>
                 `;

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>How It Works - Listening Trader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #23272f 0%, #18181b 100%);
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.92);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .main-btn {
+            background: linear-gradient(90deg, #6366f1 0%, #f472b6 100%);
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 2.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 2px 16px 0 rgba(99,102,241,0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .main-btn:hover {
+            transform: scale(1.07);
+            box-shadow: 0 4px 24px 0 rgba(244,114,182,0.25);
+            background: linear-gradient(90deg, #f472b6 0%, #6366f1 100%);
+        }
+        .step {
+            border-left: 4px solid #6366f1;
+            padding-left: 1rem;
+            margin-bottom: 2rem;
+        }
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #f472b6;
+        }
+        .step-desc {
+            color: #c7d2fe;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-gray-200">
+    <nav class="w-full flex justify-center py-4 mb-6 gap-4">
+        <a href="index.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Home</a>
+        <a href="how-it-works.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">How It Works</a>
+        <a href="trending.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Trending</a>
+        <a href="movers.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Biggest Movers</a>
+        <a href="improved.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Most Improved</a>
+    </nav>
+    <header class="text-center mb-8">
+        <div class="flex justify-center mb-4">
+            <!-- Cartoon Bull with Headphones Logo -->
+            <svg width="72" height="72" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Bull Head -->
+                <ellipse cx="36" cy="40" rx="18" ry="16" fill="#a21caf" stroke="#23272f" stroke-width="2"/>
+                <!-- Bull Nose -->
+                <ellipse cx="36" cy="52" rx="7" ry="4" fill="#ffe600" stroke="#23272f" stroke-width="1.5"/>
+                <!-- Nostrils -->
+                <ellipse cx="33" cy="52" rx="1" ry="1.5" fill="#23272f"/>
+                <ellipse cx="39" cy="52" rx="1" ry="1.5" fill="#23272f"/>
+                <!-- Eyes -->
+                <ellipse cx="31" cy="42" rx="2" ry="2.5" fill="#fff"/>
+                <ellipse cx="41" cy="42" rx="2" ry="2.5" fill="#fff"/>
+                <ellipse cx="31" cy="43" rx="1" ry="1.2" fill="#23272f"/>
+                <ellipse cx="41" cy="43" rx="1" ry="1.2" fill="#23272f"/>
+                <!-- Smile -->
+                <path d="M33 48 Q36 50 39 48" stroke="#43ff7b" stroke-width="2" fill="none"/>
+                <!-- Horns -->
+                <path d="M18 32 Q10 20 28 24" stroke="#ffe600" stroke-width="3" fill="none"/>
+                <path d="M54 32 Q62 20 44 24" stroke="#ffe600" stroke-width="3" fill="none"/>
+                <!-- Headphones -->
+                <ellipse cx="24" cy="40" rx="4" ry="5" fill="#43ff7b" stroke="#23272f" stroke-width="1.5"/>
+                <ellipse cx="48" cy="40" rx="4" ry="5" fill="#43ff7b" stroke="#23272f" stroke-width="1.5"/>
+                <rect x="24" y="36" width="24" height="8" rx="4" fill="#23272f" stroke="#43ff7b" stroke-width="1.5"/>
+            </svg>
+        </div>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg neon-text">Listening Trader</h1>
+        <p class="text-lg text-gray-400 mt-2">AI-Powered Market Sentiment Analysis</p>
+    </header>
+    <div class="w-full max-w-2xl mx-auto p-8 glass mt-4">
+        <div class="space-y-8">
+            <div class="step">
+                <div class="step-title">1. Intelligent Data Collection</div>
+                <div class="step-desc">Our backend automatically scans top finance and crypto subreddits every hour, collecting thousands of posts and comments in real time.</div>
+            </div>
+            <div class="step">
+                <div class="step-title">2. Advanced Ticker Recognition</div>
+                <div class="step-desc">A custom algorithm detects stock and crypto tickers, using a comprehensive blacklist to filter out common words and ensure accuracy.</div>
+            </div>
+            <div class="step">
+                <div class="step-title">3. AI-Powered Sentiment Analysis</div>
+                <div class="step-desc">Each comment mentioning a ticker is analyzed using a machine learning model that we <span class="font-bold text-pink-400">created and trained specifically for financial text</span>. The model evaluates the sentiment (Buy, Hold, Sell) with high precision.</div>
+            </div>
+            <div class="step">
+                <div class="step-title">4. Real-Time Aggregation & Storage</div>
+                <div class="step-desc">Results are aggregated and stored in a high-performance database, enabling instant queries and historical tracking for every ticker.</div>
+            </div>
+            <div class="step">
+                <div class="step-title">5. Interactive Visualization</div>
+                <div class="step-desc">The frontend delivers a beautiful, interactive dashboard with vibrant visuals, live charts, and trending insights—making market sentiment easy to explore.</div>
+            </div>
+        </div>
+        <div class="mt-8 text-center">
+            <a href="https://github.com/ybapat/reddit-sentiment-analyzer" target="_blank" class="main-btn">View on GitHub</a>
+        </div>
+    </div>
+</body>
+</html>

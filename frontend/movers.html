@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Biggest Movers - Listening Trader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #23272f 0%, #18181b 100%);
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.92);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .main-btn {
+            background: linear-gradient(90deg, #6366f1 0%, #f472b6 100%);
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 2.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 2px 16px 0 rgba(99,102,241,0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .main-btn:hover {
+            transform: scale(1.07);
+            box-shadow: 0 4px 24px 0 rgba(244,114,182,0.25);
+            background: linear-gradient(90deg, #f472b6 0%, #6366f1 100%);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-gray-200">
+    <nav class="w-full flex justify-center py-4 mb-6 gap-4">
+        <a href="index.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Home</a>
+        <a href="how-it-works.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">How It Works</a>
+        <a href="trending.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Trending</a>
+        <a href="movers.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Biggest Movers</a>
+        <a href="improved.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Most Improved</a>
+    </nav>
+    <div class="w-full max-w-2xl mx-auto p-8 glass mt-4">
+        <h1 class="text-3xl font-extrabold mb-6 text-indigo-300 drop-shadow-lg">Biggest Sentiment Movers</h1>
+        <div id="movers-list" class="space-y-6"></div>
+    </div>
+    <script>
+    async function loadMovers() {
+        // Fetch all tickers' history for the last 2 hours
+        const response = await fetch('/api/analyze');
+        const data = await response.json();
+        // For each ticker, fetch its history and calculate change
+        const tickers = Object.keys(data);
+        let movers = [];
+        for (const ticker of tickers) {
+            try {
+                const histRes = await fetch(`/api/history/${ticker}`);
+                const histData = await histRes.json();
+                const scores = histData.scores;
+                if (scores.length < 2) continue;
+                // Compare last score to previous score
+                const change = scores[scores.length-1] - scores[scores.length-2];
+                movers.push({ ticker, change, score: scores[scores.length-1], sentiment: data[ticker].sentiment });
+            } catch {}
+        }
+        // Sort by absolute change, show top 5
+        movers.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+        const topMovers = movers.slice(0, 5);
+        const moversList = document.getElementById('movers-list');
+        moversList.innerHTML = topMovers.map(m => `
+            <div class="p-6 rounded-xl bg-gradient-to-r from-green-400 via-yellow-400 to-red-400 shadow-lg flex flex-col md:flex-row items-center justify-between">
+                <div class="flex flex-col items-start">
+                    <span class="text-2xl font-bold text-white">${m.ticker}</span>
+                    <span class="text-lg text-gray-200">${m.sentiment} &bull; Score: ${m.score.toFixed(2)}</span>
+                </div>
+                <span class="text-xl font-semibold ${m.change > 0 ? 'text-green-300' : 'text-red-300'}">${m.change > 0 ? '+' : ''}${m.change.toFixed(2)} change</span>
+            </div>
+        `).join('');
+    }
+    loadMovers();
+    </script>
+</body>
+</html>

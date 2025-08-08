@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Behind the Scenes - Listening Trader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #23272f 0%, #18181b 100%);
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.85);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        a.github {
+            color: #6366f1;
+            text-decoration: underline;
+            font-weight: 600;
+        }
+        a.github:hover {
+            color: #f472b6;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-gray-200">
+    <div class="w-full max-w-2xl mx-auto p-8 glass mt-12">
+        <h1 class="text-3xl font-extrabold mb-4 text-indigo-300">Behind the Scenes</h1>
+        <p class="mb-6 text-lg">Listening Trader is an AI-powered web app that analyzes market sentiment from Reddit. Here's how it works under the hood:</p>
+        <ul class="list-disc pl-6 mb-6 space-y-2">
+            <li><span class="font-semibold text-pink-400">Data Collection:</span> A Python backend uses PRAW to scrape posts and comments from finance-related subreddits every hour.</li>
+            <li><span class="font-semibold text-green-400">Ticker Detection:</span> Comments are scanned for stock and crypto tickers, filtering out common words to avoid false positives.</li>
+            <li><span class="font-semibold text-yellow-400">Sentiment Analysis:</span> Each comment mentioning a ticker is analyzed using a machine learning model trained on financial text.</li>
+            <li><span class="font-semibold text-blue-400">Aggregation & Storage:</span> Results are aggregated and stored in a database for fast, real-time querying by the frontend.</li>
+            <li><span class="font-semibold text-purple-400">Frontend Visualization:</span> The web UI displays sentiment, mentions, and historical trends with interactive charts and vibrant visuals.</li>
+        </ul>
+        <p class="mb-4">Want to see the code or contribute? Check out the project on GitHub:</p>
+        <a class="github text-lg" href="https://github.com/yashbapat/reddit-sentiment-analyzer" target="_blank">github.com/yashbapat/reddit-sentiment-analyzer</a>
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-indigo-400 hover:text-pink-400 underline">← Back to Main App</a>
+        </div>
+    </div>
+</body>
+</html>
