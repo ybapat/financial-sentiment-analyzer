@@ -1,6 +1,0 @@
-CLIENT_ID = "s5TPFtdjZM0-6hknZW9FIQ"
-CLIENT_SECRET = "7-Eq8Y2C08K_dBpus2P-9djeR8KVDQ"
-
-USER_AGENT = "Reddit scraper!"
-
-NEWSAPI_KEY='d5aec2eac3494b3fb4ebd0d6ebc4ec71'
