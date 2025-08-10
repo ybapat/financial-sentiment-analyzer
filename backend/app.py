@@ -1,11 +1,13 @@
 # backend/app.py
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import praw
 import joblib
 import pandas as pd
 #import config # Your API keys
-from dotenv import load_dotenv
-load_dotenv()
+
 
 from flask import Flask, jsonify, send_from_directory, request, session
 from flask_cors import CORS
@@ -97,7 +99,7 @@ def load_tickers_from_csv(filename):
 # --- 2. SETUP FLASK APP ---
 # Set static_folder to the frontend directory (relative to backend/app.py)
 app = Flask(__name__, static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')), static_url_path='')
-app.secret_key = '2f52eef9dfcbcb5eebf37f13895f1d5a092af80a2f17691fe70644309c46317c'
+app.secret_key = os.environ.get('SECRET_KEY')
 CORS(app) # This is important to allow your frontend to make requests to this backend
 
 login_manager = LoginManager()
