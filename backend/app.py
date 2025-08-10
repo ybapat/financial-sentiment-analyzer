@@ -4,11 +4,13 @@ import praw
 import joblib
 import pandas as pd
 import config # Your API keys
-from flask import Flask, jsonify, send_from_directory
+from flask import Flask, jsonify, send_from_directory, request, session
 from flask_cors import CORS
 import sqlite3
 import datetime
 import os
+from werkzeug.security import generate_password_hash, check_password_hash
+from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
 
 # --- 1. LOAD THE TRAINED MODEL AND VECTORIZER ---
 print("Loading model and vectorizer...")
@@ -40,6 +42,39 @@ def init_db():
     conn.close()
     print("Database initialized successfully.")
 
+# Create users table if not exists
+with sqlite3.connect(DATABASE_FILE) as conn:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS users (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            username TEXT UNIQUE NOT NULL,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL
+        )
+    """)
+
+# Create user_favorites table if not exists
+with sqlite3.connect(DATABASE_FILE) as conn:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS user_favorites (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            ticker TEXT NOT NULL,
+            UNIQUE(user_id, ticker)
+        )
+    """)
+
+# Create user_watchlist table if not exists
+with sqlite3.connect(DATABASE_FILE) as conn:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS user_watchlist (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            ticker TEXT NOT NULL,
+            UNIQUE(user_id, ticker)
+        )
+    """)
+
 # --- UTILITY FUNCTION TO LOAD TICKERS ---
 def load_tickers_from_csv(filename):
     """Loads stock tickers from a CSV file into a Python set."""
@@ -59,7 +94,29 @@ def load_tickers_from_csv(filename):
 # --- 2. SETUP FLASK APP ---
 # Set static_folder to the frontend directory (relative to backend/app.py)
 app = Flask(__name__, static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')), static_url_path='')
+app.secret_key = '2f52eef9dfcbcb5eebf37f13895f1d5a092af80a2f17691fe70644309c46317c'
 CORS(app) # This is important to allow your frontend to make requests to this backend
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+
+class User(UserMixin):
+    def __init__(self, id, username, email, password_hash):
+        self.id = id
+        self.username = username
+        self.email = email
+        self.password_hash = password_hash
+
+@login_manager.user_loader
+def load_user(user_id):
+    conn = sqlite3.connect(DATABASE_FILE)
+    c = conn.cursor()
+    c.execute("SELECT id, username, email, password_hash FROM users WHERE id=?", (user_id,))
+    row = c.fetchone()
+    conn.close()
+    if row:
+        return User(*row)
+    return None
 
 # --- 3. CREATE THE API ENDPOINT ---
 @app.route('/api/analyze', methods=['GET'])
@@ -103,6 +160,126 @@ def get_history(ticker):
             labels.append(str(ts))
         scores.append(round(score, 2))
     return jsonify({"labels": labels, "scores": scores})
+
+@app.route('/api/register', methods=['POST'])
+def register():
+    data = request.json
+    username = data.get('username')
+    email = data.get('email')
+    password = data.get('password')
+    if not username or not email or not password:
+        return jsonify({'error': 'Missing fields'}), 400
+    password_hash = generate_password_hash(password)
+    try:
+        with sqlite3.connect(DATABASE_FILE) as conn:
+            conn.execute("INSERT INTO users (username, email, password_hash) VALUES (?, ?, ?)", (username, email, password_hash))
+        return jsonify({'message': 'User registered successfully'})
+    except sqlite3.IntegrityError:
+        return jsonify({'error': 'Username or email already exists'}), 409
+
+@app.route('/api/login', methods=['POST'])
+def login():
+    data = request.json
+    username = data.get('username')
+    password = data.get('password')
+    if not username or not password:
+        return jsonify({'error': 'Missing fields'}), 400
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        c = conn.cursor()
+        c.execute("SELECT id, username, email, password_hash FROM users WHERE username=?", (username,))
+        row = c.fetchone()
+    if row and check_password_hash(row[3], password):
+        user = User(*row)
+        login_user(user)
+        return jsonify({'message': 'Login successful', 'username': user.username})
+    return jsonify({'error': 'Invalid credentials'}), 401
+
+@app.route('/api/logout', methods=['POST'])
+@login_required
+def logout():
+    logout_user()
+    return jsonify({'message': 'Logged out'})
+
+@app.route('/api/user', methods=['GET'])
+@login_required
+def get_user():
+    return jsonify({'username': current_user.username, 'email': current_user.email})
+
+@app.route('/api/favorite', methods=['POST'])
+@login_required
+def add_favorite():
+    data = request.json
+    ticker = data.get('ticker')
+    if not ticker:
+        return jsonify({'error': 'Missing ticker'}), 400
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        try:
+            conn.execute("INSERT OR IGNORE INTO user_favorites (user_id, ticker) VALUES (?, ?)", (current_user.id, ticker.upper()))
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+    return jsonify({'message': 'Ticker favorited'})
+
+@app.route('/api/favorite', methods=['DELETE'])
+@login_required
+def remove_favorite():
+    data = request.json
+    ticker = data.get('ticker')
+    if not ticker:
+        return jsonify({'error': 'Missing ticker'}), 400
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        conn.execute("DELETE FROM user_favorites WHERE user_id=? AND ticker=?", (current_user.id, ticker.upper()))
+    return jsonify({'message': 'Ticker unfavorited'})
+
+@app.route('/api/favorites', methods=['GET'])
+@login_required
+def get_favorites():
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        c = conn.cursor()
+        c.execute("SELECT ticker FROM user_favorites WHERE user_id=?", (current_user.id,))
+        tickers = [row[0] for row in c.fetchall()]
+    return jsonify({'favorites': tickers})
+
+@app.route('/api/watchlist', methods=['GET'])
+@login_required
+def get_watchlist():
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        c = conn.cursor()
+        c.execute("SELECT ticker FROM user_watchlist WHERE user_id=?", (current_user.id,))
+        tickers = [row[0] for row in c.fetchall()]
+    return jsonify({'watchlist': tickers})
+
+@app.route('/api/watchlist/add', methods=['POST'])
+@login_required
+def add_watchlist():
+    data = request.json
+    ticker = data.get('ticker')
+    if not ticker:
+        return jsonify({'error': 'Missing ticker'}), 400
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        try:
+            conn.execute("INSERT OR IGNORE INTO user_watchlist (user_id, ticker) VALUES (?, ?)", (current_user.id, ticker.upper()))
+        except Exception as e:
+            return jsonify({'error': str(e)}), 500
+        # Return updated watchlist
+        c = conn.cursor()
+        c.execute("SELECT ticker FROM user_watchlist WHERE user_id=?", (current_user.id,))
+        tickers = [row[0] for row in c.fetchall()]
+    return jsonify({'success': True, 'watchlist': tickers})
+
+@app.route('/api/watchlist/remove', methods=['POST'])
+@login_required
+def remove_watchlist():
+    data = request.json
+    ticker = data.get('ticker')
+    if not ticker:
+        return jsonify({'error': 'Missing ticker'}), 400
+    with sqlite3.connect(DATABASE_FILE) as conn:
+        conn.execute("DELETE FROM user_watchlist WHERE user_id=? AND ticker=?", (current_user.id, ticker.upper()))
+        # Return updated watchlist
+        c = conn.cursor()
+        c.execute("SELECT ticker FROM user_watchlist WHERE user_id=?", (current_user.id,))
+        tickers = [row[0] for row in c.fetchall()]
+    return jsonify({'success': True, 'watchlist': tickers})
 
 # Serve index.html at root
 @app.route('/')

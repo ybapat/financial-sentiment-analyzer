@@ -1,0 +1,16 @@
+# Ignore Python cache and environment
+__pycache__/
+*.pyc
+*.pyo
+*.env
+
+# Ignore backend secrets
+backend/config.py
+
+# Ignore database and model files
+backend/sentiment_history.db
+backend/sentiment_model.pkl
+backend/tfidf_vectorizer.pkl
+
+# Ignore OS files
+.DS_Store

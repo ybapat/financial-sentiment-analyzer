@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Watchlist - Bull AI</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #23272f 0%, #18181b 100%); }
+        .glass { background: rgba(30, 41, 59, 0.92); box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37); backdrop-filter: blur(8px); border-radius: 1rem; border: 1px solid rgba(255,255,255,0.08); }
+        .main-btn { background: linear-gradient(90deg, #6366f1, #a21caf); color: white; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); padding: 0.75rem 2rem; border-radius: 9999px; font-weight: 600; font-size: 1.1rem; }
+        .main-btn:hover { background: linear-gradient(90deg, #a21caf, #6366f1); }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-gray-200">
+    <nav class="w-full flex justify-center py-4 mb-6 gap-4">
+        <a href="index.html" class="main-btn">Home</a>
+        <a href="watchlist.html" class="main-btn">Watchlist</a>
+    </nav>
+    <div class="w-full max-w-2xl mx-auto p-8 glass mt-4">
+        <h1 class="text-3xl font-extrabold mb-6 text-indigo-300 drop-shadow-lg">My Watchlist</h1>
+        <div id="watchlist-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-6"></div>
+        <div id="watchlist-message" class="text-center text-gray-400 mt-8"></div>
+    </div>
+    <script>
+    async function loadWatchlist() {
+        const res = await fetch('/api/watchlist');
+        if (!res.ok) {
+            document.getElementById('watchlist-message').textContent = 'Please log in to view your watchlist.';
+            return;
+        }
+        const data = await res.json();
+        const tickers = data.watchlist;
+        if (!tickers || tickers.length === 0) {
+            document.getElementById('watchlist-message').textContent = 'Your watchlist is empty.';
+            return;
+        }
+        let grid = '';
+        for (const ticker of tickers) {
+            try {
+                const infoRes = await fetch(`/api/analyze`);
+                const infoData = await infoRes.json();
+                const stock = infoData[ticker];
+                if (!stock) continue;
+                let gradient = stock.box_color || (stock.sentiment === 'BUY' ? 'linear-gradient(90deg, #43ff7b 0%, #a21caf 100%)' : stock.sentiment === 'SELL' ? 'linear-gradient(90deg, #ff2e2e 0%, #a21caf 100%)' : 'linear-gradient(90deg, #ffe600 0%, #a21caf 100%)');
+                grid += `<div class='p-6 rounded-xl shadow-lg flex flex-col justify-between' style='background:${gradient}'>
+                    <div class='flex justify-between items-center mb-2'>
+                        <span class='text-2xl font-bold text-white'>${ticker}</span>
+                        <span class='text-sm font-semibold py-1 px-3 rounded-full ${stock.sentiment === 'BUY' ? 'bg-green-400 text-green-900' : stock.sentiment === 'SELL' ? 'bg-red-400 text-red-900' : 'bg-yellow-300 text-black'} border border-gray-300/40'>${stock.sentiment}</span>
+                    </div>
+                    <div class='text-gray-900 mb-4'>Mentions: ${stock.mentions} <br> Score: ${stock.score}</div>
+                    <button class='watchlist-btn main-btn mt-auto self-end px-0 py-0 w-12 h-12 rounded-full flex items-center justify-center border-2 border-black bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-400 shadow-lg hover:scale-110 transition-transform duration-200' onclick='removeFromWatchlist("${ticker}", this)' title='Remove from Watchlist'>
+                        <svg xmlns='http://www.w3.org/2000/svg' class='h-7 w-7' fill='none' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M5 5v14l7-7 7 7V5z'/></svg>
+                    </button>
+                    <span class='watchlist-feedback ml-2 text-green-400 font-bold flex items-center space-x-1 text-base' style='display:none;'></span>
+                </div>`;
+            } catch (err) {}
+        }
+        document.getElementById('watchlist-grid').innerHTML = grid;
+    }
+    async function removeFromWatchlist(ticker, btnEl) {
+        const url = '/api/watchlist/remove';
+        btnEl.disabled = true;
+        fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker }),
+        })
+        .then(res => res.json())
+        .then(data => {
+            let feedbackEl = btnEl.parentElement.querySelector('.watchlist-feedback');
+            if (feedbackEl) feedbackEl.style.display = 'none';
+            if (data.success) {
+                feedbackEl = btnEl.parentElement.querySelector('.watchlist-feedback');
+                feedbackEl.style.display = 'flex';
+                feedbackEl.innerHTML = `<svg class='w-5 h-5 mr-1' fill='none' stroke='currentColor' stroke-width='3' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7'/></svg>Removed!`;
+                setTimeout(() => { feedbackEl.style.display = 'none'; loadWatchlist(); }, 1200);
+            } else {
+                feedbackEl = btnEl.parentElement.querySelector('.watchlist-feedback');
+                feedbackEl.style.display = 'flex';
+                feedbackEl.innerHTML = 'Error!';
+                setTimeout(() => { feedbackEl.style.display = 'none'; btnEl.disabled = false; }, 1200);
+            }
+        })
+        .catch(() => {
+            let feedbackEl = btnEl.parentElement.querySelector('.watchlist-feedback');
+            feedbackEl.style.display = 'flex';
+            feedbackEl.innerHTML = 'Network error!';
+            setTimeout(() => { feedbackEl.style.display = 'none'; btnEl.disabled = false; }, 1200);
+        });
+    }
+    window.addEventListener('DOMContentLoaded', loadWatchlist);
+    </script>
+</body>
+</html>

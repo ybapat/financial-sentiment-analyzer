@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial - Sentiment Analyzer</title>
+    <title>Bull AI - Sentiment Analyzer</title>
     <!-- Tailwind CSS for styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts: Inter -->
@@ -60,6 +60,26 @@
             @apply scale-105;
             background: linear-gradient(90deg, #a21caf, #6366f1);
         }
+        /* Add shake animation for error feedback */
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            25% { transform: translateX(-4px); }
+            50% { transform: translateX(4px); }
+            75% { transform: translateX(-4px); }
+            100% { transform: translateX(0); }
+        }
+        .shake {
+            animation: shake 0.4s;
+        }
+        /* Add pulse animation for success feedback */
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 #a21caf; }
+            50% { box-shadow: 0 0 12px 6px #a21caf; }
+            100% { box-shadow: 0 0 0 0 #a21caf; }
+        }
+        .animate-pulse {
+            animation: pulse 0.4s;
+        }
     </style>
 </head>
 <body class="text-gray-200 antialiased bg-gradient-to-br from-gray-900 via-gray-950 to-black min-h-screen">
@@ -93,22 +113,13 @@
                     <rect x="24" y="36" width="24" height="8" rx="4" fill="#23272f" stroke="#43ff7b" stroke-width="1.5"/>
                 </svg>
             </div>
-            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg neon-text">Listening Trader</h1>
+            <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg neon-text">Bull AI</h1>
             <p class="text-lg text-gray-400 mt-2">AI-Powered Market Sentiment Analysis</p>
         </header>
 
-        <!-- Navigation Bar -->
-        <nav class="w-full flex justify-center py-4 mb-6 gap-4">
-            <!-- Home button removed from homepage -->
-            <a href="how-it-works.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">How It Works</a>
-            <a href="trending.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Trending</a>
-            <a href="movers.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Biggest Movers</a>
-            <a href="improved.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Most Improved</a>
-        </nav>
-
         <!-- Control Section -->
-        <div class="mb-10 text-center">
-            <button id="analyze-btn" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white font-bold py-3 px-8 rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center mx-auto glow-btn">
+        <div class="mb-8 text-center">
+            <button id="analyze-btn" class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 hover:from-indigo-500 hover:to-pink-400 text-white font-bold py-4 px-10 rounded-full shadow-xl transition-all duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center mx-auto glow-btn text-xl">
                 <span id="btn-text">Analyze Market Sentiment</span>
                 <!-- Loading spinner, hidden by default -->
                 <svg id="spinner" class="animate-spin-slow h-5 w-5 text-white hidden ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -118,6 +129,15 @@
             </button>
             <p id="last-updated" class="text-gray-500 text-sm mt-3"></p>
         </div>
+
+        <!-- Navigation Bar -->
+        <nav class="w-full flex justify-center py-4 mb-6 gap-4">
+            <!-- Home button removed from homepage -->
+            <a href="how-it-works.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">How It Works</a>
+            <a href="trending.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Trending</a>
+            <a href="movers.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Biggest Movers</a>
+            <a href="improved.html" class="main-btn rounded-full text-base font-semibold px-6 py-3">Most Improved</a>
+        </nav>
 
         <!-- Sort Controls -->
         <div id="sort-controls" class="mb-6 hidden flex items-center space-x-2 p-1 bg-gray-800 rounded-full shadow-lg">
@@ -129,12 +149,14 @@
         <!-- Results Section -->
         <main id="results-container" class="w-full max-w-6xl mx-auto">
             <!-- Message area for loading or initial state -->
-            <div id="message-area" class="text-center text-gray-500">Click the button to start the analysis.</div>
+            <div id="message-area" class="text-center text-gray-500"> </div>
             <!-- Grid for displaying result cards -->
             <div id="results-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <!-- Stock cards will be inserted here by JavaScript -->
             </div>
         </main>
+        <!-- User Info Section (bottom) -->
+        <div id="user-info" class="w-full max-w-xl mx-auto mt-12 mb-6 text-center"></div>
 
         <!-- Loading Overlay -->
         <div id="loading-overlay" class="hidden fixed inset-0 bg-gradient-to-br from-indigo-900 via-gray-900 to-black bg-opacity-90 backdrop-blur-md flex flex-col items-center justify-center z-50 transition-opacity duration-300">
@@ -181,7 +203,9 @@
         let factInterval;
         let currentData = {}; // Store the fetched data globally
         let currentSort = 'score'; // Default to sort by rating
-        // Fun facts array
+        let userFavorites = [];
+        let userWatchlist = [];
+        let isLoggedIn = false;
         const funFacts = [
             "The term 'bear' and 'bull' market are thought to originate from how the animals attack; a bull thrusts its horns up, a bear swipes its paws down.",
             "The New York Stock Exchange (NYSE) started in 1792 under a buttonwood tree on Wall Street.",
@@ -190,18 +214,114 @@
             "The first company to issue stock was the Dutch East India Company in 1602."
         ];
 
+        async function fetchUserFavorites() {
+            try {
+                const res = await fetch('/api/favorites');
+                if (res.ok) {
+                    const data = await res.json();
+                    userFavorites = data.favorites;
+                    isLoggedIn = true;
+                } else {
+                    userFavorites = [];
+                    isLoggedIn = false;
+                }
+            } catch {
+                userFavorites = [];
+                isLoggedIn = false;
+            }
+        }
+
+        async function fetchUserWatchlist() {
+            try {
+                const res = await fetch('/api/watchlist');
+                if (res.ok) {
+                    const data = await res.json();
+                    userWatchlist = data.watchlist;
+                } else {
+                    userWatchlist = [];
+                }
+            } catch {
+                userWatchlist = [];
+            }
+        }
+
+        // --- User Info Display ---
+        async function fetchUserInfo() {
+            try {
+                const res = await fetch('/api/user');
+                if (res.ok) {
+                    const data = await res.json();
+                    document.getElementById('user-info').innerHTML = `
+                        <div class="glass bg-gradient-to-br from-indigo-900/80 via-purple-900/70 to-gray-900/80 shadow-2xl border border-indigo-700/30 rounded-2xl p-8 flex flex-col items-center">
+                            <div class="mb-2 text-3xl font-extrabold text-green-400 drop-shadow-lg">Welcome, <span class="text-indigo-300">${data.username}</span>!</div>
+                            <div class="mb-4 text-base text-gray-300">You're logged in. Enjoy advanced analytics and personalized features.</div>
+                            <div class="flex gap-4 mb-2">
+                                <a href="watchlist.html" class="main-btn px-6 py-2 text-base font-bold rounded-xl border-2 border-black shadow-lg hover:scale-105 transition-transform duration-200" title="Go to Watchlist">
+                                    My Watchlist
+                                </a>
+                            </div>
+                            <button id="logout-btn" class="main-btn px-8 py-3 text-lg font-bold mt-2">Logout</button>
+                        </div>
+                    `;
+                    document.getElementById('logout-btn').onclick = async function() {
+                        await fetch('/api/logout', { method: 'POST' });
+                        fetchUserInfo();
+                        fetchUserFavorites();
+                        fetchUserWatchlist();
+                    };
+                } else {
+                    document.getElementById('user-info').innerHTML = `
+                        <div class="glass bg-gradient-to-br from-indigo-900/80 via-purple-900/70 to-gray-900/80 shadow-2xl border border-indigo-700/30 rounded-2xl p-8 flex flex-col items-center">
+                            <div class="mb-4 text-base text-gray-300">Sign in to unlock personalized features and save your favorite tickers.</div>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                                <a href="login.html" class="main-btn px-8 py-3 text-lg font-bold">Login</a>
+                                <a href="register.html" class="main-btn px-8 py-3 text-lg font-bold">Register</a>
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch {
+                document.getElementById('user-info').innerHTML = `
+                    <div class="glass bg-gradient-to-br from-indigo-900/80 via-purple-900/70 to-gray-900/80 shadow-2xl border border-indigo-700/30 rounded-2xl p-8 flex flex-col items-center">
+                        <div class="mb-4 text-base text-gray-300">Sign in to unlock personalized features and save your favorite tickers.</div>
+                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a href="login.html" class="main-btn px-8 py-3 text-lg font-bold">Login</a>
+                            <a href="register.html" class="main-btn px-8 py-3 text-lg font-bold">Register</a>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
         // --- Event Listeners ---
-        analyzeBtn.addEventListener('click', fetchData);
-        sortMentionsBtn.addEventListener('click', () => setSort('mentions'));
-        sortScoreBtn.addEventListener('click', () => setSort('score'));
-        closeModalBtn.addEventListener('click', () => chartModal.classList.add('hidden'));
+        function attachEventListeners() {
+            analyzeBtn.addEventListener('click', fetchData);
+            sortMentionsBtn.addEventListener('click', () => setSort('mentions'));
+            sortScoreBtn.addEventListener('click', () => setSort('score'));
+            closeModalBtn.addEventListener('click', () => chartModal.classList.add('hidden'));
+        }
 
         window.addEventListener('DOMContentLoaded', () => {
             // Set sort button styles to match default sort
-            sortScoreBtn.classList.add('bg-indigo-600', 'text-white');
-            sortScoreBtn.classList.remove('text-gray-400');
-            sortMentionsBtn.classList.remove('bg-indigo-600', 'text-white');
-            sortMentionsBtn.classList.add('text-gray-400');
+            if (currentSort === 'score') {
+                sortScoreBtn.classList.add('bg-indigo-600', 'text-white');
+                sortScoreBtn.classList.remove('text-gray-400');
+                sortMentionsBtn.classList.remove('bg-indigo-600', 'text-white');
+                sortMentionsBtn.classList.add('text-gray-400');
+            } else {
+                sortMentionsBtn.classList.add('bg-indigo-600', 'text-white');
+                sortMentionsBtn.classList.remove('text-gray-400');
+                sortScoreBtn.classList.remove('bg-indigo-600', 'text-white');
+                sortScoreBtn.classList.add('text-gray-400');
+            }
+            // Enable analyze button
+            analyzeBtn.disabled = false;
+            spinner.classList.add('hidden');
+            attachEventListeners();
+            // Initialize user info and favorites only after DOM is ready
+            fetchUserInfo();
+            fetchUserFavorites();
+            fetchUserWatchlist();
         });
 
         function startFactRotator() {
@@ -219,10 +339,13 @@
         async function fetchData() {
             setLoadingState(true);
             messageArea.textContent = '';
-            // Show fun fact area
             document.getElementById('loading-overlay').classList.remove('hidden');
             startFactRotator();
-
+            // Remove forced login dependency: only fetch favorites if logged in
+            if (isLoggedIn) {
+                await fetchUserFavorites();
+                await fetchUserWatchlist();
+            }
             try {
                 const response = await fetch('/api/analyze');
                 if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
@@ -286,31 +409,54 @@
             resultsGrid.innerHTML = '';
             const sortedTickers = Object.keys(currentData).sort((a, b) => {
                 if (currentSort === 'score') {
-                    return currentData[b].score - currentData[a].score;
+                    // Sort by score with higher precision
+                    return parseFloat(currentData[b].score).toFixed(6) - parseFloat(currentData[a].score).toFixed(6);
                 }
                 return currentData[b].mentions - currentData[a].mentions;
             });
             sortedTickers.forEach((ticker, index) => {
                 const stock = currentData[ticker];
-                // Use backend-provided box_color for gradient
                 let gradient = stock.box_color || '';
+                // --- Fix sentiment category assignment ---
+                let sentimentLabel = '';
+                let sentimentClass = '';
+                const score = parseFloat(stock.score);
+                if (score >= 0.7) {
+                    sentimentLabel = 'BUY';
+                    sentimentClass = 'bg-green-400 text-green-900';
+                } else if (score >= 0.4 && score < 0.7) {
+                    sentimentLabel = 'HOLD';
+                    sentimentClass = 'bg-yellow-300 text-black';
+                } else {
+                    sentimentLabel = 'SELL';
+                    sentimentClass = 'bg-red-400 text-red-900';
+                }
                 if (!gradient) {
-                    if (stock.sentiment === 'BUY') {
-                        gradient = 'linear-gradient(90deg, #43ff7b 0%, #a21caf 100%)'; // bright green left, purple right
-                    } else if (stock.sentiment === 'SELL') {
-                        gradient = 'linear-gradient(90deg, #ff2e2e 0%, #a21caf 100%)'; // bright red left, purple right
+                    if (sentimentLabel === 'BUY') {
+                        gradient = 'linear-gradient(90deg, #43ff7b 0%, #a21caf 100%)';
+                    } else if (sentimentLabel === 'SELL') {
+                        gradient = 'linear-gradient(90deg, #ff2e2e 0%, #a21caf 100%)';
                     } else {
-                        gradient = 'linear-gradient(90deg, #ffe600 0%, #a21caf 100%)'; // bright yellow left, purple right
+                        gradient = 'linear-gradient(90deg, #ffe600 0%, #a21caf 100%)';
                     }
                 }
+                const isWatched = userWatchlist.includes(ticker);
                 const card = document.createElement('div');
-                card.className = `backdrop-blur-sm p-5 rounded-xl border border-gray-700 shadow-lg card-appear cursor-pointer transform hover:-translate-y-1 transition-transform`;
+                card.className = `backdrop-blur-sm p-5 rounded-xl border border-gray-700 shadow-lg card-appear cursor-pointer transform hover:-translate-y-1 transition-transform relative`;
                 card.style.animationDelay = `${index * 50}ms`;
                 card.style.background = gradient;
                 card.innerHTML = `
                     <div class="flex justify-between items-start mb-4">
                         <h2 class="text-3xl font-bold text-white drop-shadow">${ticker}</h2>
-                        <span class="text-sm font-semibold py-1 px-3 rounded-full ${stock.sentiment === 'BUY' ? 'bg-green-400 text-green-900' : stock.sentiment === 'SELL' ? 'bg-red-400 text-red-900' : 'bg-yellow-300 text-black'} border border-gray-300/40">${stock.sentiment}</span>
+                        <div class="flex gap-2 items-center">
+                            <button class="watchlist-btn ${isWatched ? 'filled' : ''} rounded-full p-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-400 shadow-lg hover:scale-110 transition-transform duration-200" title="${isWatched ? 'Remove from Watchlist' : 'Add to Watchlist'}">
+                                <svg xmlns='http://www.w3.org/2000/svg' class='h-7 w-7' fill='${isWatched ? '#fff' : 'none'}' stroke='currentColor' stroke-width='2' viewBox='0 0 24 24'><path d='M5 5v14l7-7 7 7V5z'/></svg>
+                            </button>
+                            <span class="watchlist-feedback ml-2 text-green-400 font-bold flex items-center space-x-1 text-base" style="display:none;"></span>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-sm font-semibold py-1 px-3 rounded-full ${sentimentClass} border border-gray-300/40">${sentimentLabel}</span>
                     </div>
                     <div class="space-y-3 text-gray-900">
                         <div class="flex items-center space-x-2">
@@ -324,45 +470,150 @@
                     </div>
                 `;
                 card.addEventListener('click', () => showHistoryChart(ticker));
+                const watchlistBtn = card.querySelector('.watchlist-btn');
+                const feedbackEl = card.querySelector('.watchlist-feedback');
+                watchlistBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    toggleWatchlist(ticker, isWatched, this, feedbackEl);
+                });
                 resultsGrid.appendChild(card);
             });
         }
 
-        async function showHistoryChart(ticker) {
-            chartTickerTitle.textContent = `Loading history for ${ticker}...`;
+        function showHistoryChart(ticker) {
             chartModal.classList.remove('hidden');
-            try {
-                const response = await fetch(`/api/history/${ticker}`);
-                const historyData = await response.json();
-                if (sentimentChart) {
-                    sentimentChart.destroy();
-                }
-                sentimentChart = new Chart(chartCanvas, {
-                    type: 'line',
-                    data: {
-                        labels: historyData.labels,
-                        datasets: [{
-                            label: 'Sentiment Score',
-                            data: historyData.scores,
-                            borderColor: 'rgb(79, 70, 229)',
-                            backgroundColor: 'rgba(79, 70, 229, 0.1)',
-                            borderWidth: 2,
-                            tension: 0.4,
-                            fill: true,
-                        }]
-                    },
-                    options: {
-                        scales: {
-                            y: { min: 0, max: 1, ticks: { color: '#9ca3af' }, grid: { color: '#374151' } },
-                            x: { ticks: { color: '#9ca3af' }, grid: { color: '#374151' } }
-                        },
-                        plugins: { legend: { labels: { color: '#d1d5db' } } }
+            chartTickerTitle.textContent = ticker;
+            // Show loading state in modal
+            const modalContent = chartTickerTitle.parentElement.querySelector('div');
+            modalContent.innerHTML = '<div class="text-center text-gray-400 py-8">Loading chart...</div>';
+            fetch(`/api/history/${ticker}`)
+                .then(res => res.json())
+                .then(data => {
+                    let historyArr = [];
+                    // Support both array and {labels, scores} formats
+                    if (Array.isArray(data)) {
+                        historyArr = data;
+                    } else if (data && Array.isArray(data.labels) && Array.isArray(data.scores)) {
+                        historyArr = data.labels.map((date, i) => ({ date, score: data.scores[i] }));
                     }
+                    if (!historyArr || historyArr.length === 0) {
+                        modalContent.innerHTML = '<div class="text-center text-red-400 py-8">No sentiment history available.</div>';
+                        return;
+                    }
+                    // Prepare chart data
+                    const labels = historyArr.map(item => item.date);
+                    const scores = historyArr.map(item => item.score);
+                    modalContent.innerHTML = '<canvas id="sentiment-chart"></canvas>';
+                    const newCanvas = document.getElementById('sentiment-chart');
+                    if (sentimentChart) sentimentChart.destroy();
+                    sentimentChart = new Chart(newCanvas, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'Sentiment Score',
+                                data: scores,
+                                borderColor: '#a21caf',
+                                backgroundColor: 'rgba(99,102,241,0.2)',
+                                pointBackgroundColor: '#43ff7b',
+                                pointBorderColor: '#a21caf',
+                                fill: true,
+                                tension: 0.3,
+                            }]
+                        },
+                        options: {
+                            plugins: {
+                                legend: { labels: { color: '#fff' } },
+                            },
+                            scales: {
+                                x: {
+                                    ticks: {
+                                        color: '#fff',
+                                        autoSkip: true,
+                                        maxTicksLimit: 10,
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)',
+                                    },
+                                },
+                                y: {
+                                    min: 0,
+                                    max: 1,
+                                    ticks: {
+                                        color: '#fff',
+                                        stepSize: 0.1,
+                                    },
+                                    grid: {
+                                        color: 'rgba(255, 255, 255, 0.1)',
+                                    },
+                                },
+                            },
+                        },
+                    });
+                })
+                .catch(err => {
+                    console.error('Error loading chart data:', err);
+                    modalContent.innerHTML = '<div class="text-center text-red-400 py-8">Error loading chart data.</div>';
                 });
-            } catch (error) {
-                console.error("Error fetching history:", error);
-                chartTickerTitle.textContent = `Could not load history for ${ticker}`;
-            }
+        }
+
+        // Watchlist toggle function
+        function toggleWatchlist(ticker, isWatched, btnEl) {
+            const url = isWatched ? '/api/watchlist/remove' : '/api/watchlist/add';
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ ticker }),
+            })
+            .then(res => res.json())
+            .then(data => {
+                // Remove any previous feedback
+                let feedbackEl = btnEl.parentElement.querySelector('.watchlist-feedback');
+                if (feedbackEl) feedbackEl.remove();
+                if (data.success) {
+                    btnEl.classList.toggle('filled', !isWatched);
+                    btnEl.classList.add('animate-pulse');
+                    setTimeout(() => btnEl.classList.remove('animate-pulse'), 400);
+                    userWatchlist = data.watchlist;
+                    // Show checkmark and message
+                    feedbackEl = document.createElement('span');
+                    feedbackEl.className = 'watchlist-feedback ml-2 flex items-center text-green-400 font-bold';
+                    feedbackEl.innerHTML = `<svg class='w-5 h-5 mr-1' fill='none' stroke='currentColor' stroke-width='3' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' d='M5 13l4 4L19 7'/></svg>${isWatched ? 'Removed!' : 'Added!'}`;
+                    btnEl.parentElement.appendChild(feedbackEl);
+                    setTimeout(() => {
+                        if (feedbackEl) feedbackEl.remove();
+                    }, 1500);
+                } else {
+                    btnEl.classList.add('shake');
+                    setTimeout(() => btnEl.classList.remove('shake'), 400);
+                    // Show error message
+                    feedbackEl = document.createElement('span');
+                    feedbackEl.className = 'watchlist-feedback ml-2 flex items-center text-red-400 font-bold';
+                    feedbackEl.textContent = data.message === 'Not logged in' ? 'Login to access!' : 'Error!';
+                    btnEl.parentElement.appendChild(feedbackEl);
+                    setTimeout(() => {
+                        if (feedbackEl) feedbackEl.remove();
+                    }, 1500);
+                    console.error('Error updating watchlist:', data.message);
+                }
+            })
+            .catch(err => {
+                btnEl.classList.add('shake');
+                setTimeout(() => btnEl.classList.remove('shake'), 400);
+                // Show login message if not logged in, else network error
+                let feedbackEl = btnEl.parentElement.querySelector('.watchlist-feedback');
+                if (feedbackEl) feedbackEl.remove();
+                feedbackEl = document.createElement('span');
+                feedbackEl.className = 'watchlist-feedback ml-2 flex items-center text-red-400 font-bold';
+                feedbackEl.textContent = isLoggedIn ? 'Network error!' : 'Login to access!';
+                btnEl.parentElement.appendChild(feedbackEl);
+                setTimeout(() => {
+                    if (feedbackEl) feedbackEl.remove();
+                }, 1500);
+                console.error('Network error:', err);
+            });
         }
     </script>
 </body>

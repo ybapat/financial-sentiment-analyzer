@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>How It Works - Listening Trader</title>
+    <title>How It Works - Bull AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -82,7 +82,7 @@
                 <rect x="24" y="36" width="24" height="8" rx="4" fill="#23272f" stroke="#43ff7b" stroke-width="1.5"/>
             </svg>
         </div>
-        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg neon-text">Listening Trader</h1>
+        <h1 class="text-4xl md:text-5xl font-extrabold text-white tracking-tight drop-shadow-lg neon-text">Bull AI</h1>
         <p class="text-lg text-gray-400 mt-2">AI-Powered Market Sentiment Analysis</p>
     </header>
     <div class="w-full max-w-2xl mx-auto p-8 glass mt-4">
@@ -97,7 +97,14 @@
             </div>
             <div class="step">
                 <div class="step-title">3. AI-Powered Sentiment Analysis</div>
-                <div class="step-desc">Each comment mentioning a ticker is analyzed using a machine learning model that we <span class="font-bold text-pink-400">created and trained specifically for financial text</span>. The model evaluates the sentiment (Buy, Hold, Sell) with high precision.</div>
+                <div class="step-desc">
+                    Each comment mentioning a ticker is analyzed using a machine learning model that we created and trained <span class="font-bold text-pink-400">specifically for financial text</span>. The model evaluates the sentiment with high precision.<br>
+                    <div class="flex gap-4 mt-2">
+                        <span class="inline-block px-3 py-1 rounded-full bg-green-400 text-green-900 font-bold text-base">Buy (≥ 0.7)</span>
+                        <span class="inline-block px-3 py-1 rounded-full bg-yellow-300 text-black font-bold text-base">Hold (0.4–0.69)</span>
+                        <span class="inline-block px-3 py-1 rounded-full bg-red-400 text-red-900 font-bold text-base">Sell (≤ 0.39)</span>
+                    </div>
+                </div>
             </div>
             <div class="step">
                 <div class="step-title">4. Real-Time Aggregation & Storage</div>
@@ -109,7 +116,7 @@
             </div>
         </div>
         <div class="mt-8 text-center">
-            <a href="https://github.com/ybapat/reddit-sentiment-analyzer" target="_blank" class="main-btn">View on GitHub</a>
+            <a href="https://github.com/ybapat/financial-sentiment-analyzer" target="_blank" class="main-btn">View on GitHub</a>
         </div>
     </div>
 </body>

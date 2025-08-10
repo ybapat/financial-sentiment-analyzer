@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Hearted Tickers - Listening Trader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #23272f 0%, #18181b 100%);
+        }
+        .glass {
+            background: rgba(30, 41, 59, 0.92);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(8px);
+            border-radius: 1rem;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .main-btn {
+            background: linear-gradient(90deg, #6366f1 0%, #f472b6 100%);
+            color: white;
+            font-weight: 700;
+            padding: 0.75rem 2.5rem;
+            border-radius: 9999px;
+            box-shadow: 0 2px 16px 0 rgba(99,102,241,0.15);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .main-btn:hover {
+            transform: scale(1.07);
+            box-shadow: 0 4px 24px 0 rgba(244,114,182,0.25);
+            background: linear-gradient(90deg, #f472b6 0%, #6366f1 100%);
+        }
+        .heart {
+            color: #f472b6;
+            transition: color 0.2s;
+            cursor: pointer;
+        }
+        .heart.filled {
+            color: #ff2e2e;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col items-center justify-center text-gray-200">
+    <nav class="w-full flex justify-center py-4 mb-6 gap-4">
+        <a href="index.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Home</a>
+        <a href="how-it-works.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">How It Works</a>
+        <a href="trending.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Trending</a>
+        <a href="movers.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Biggest Movers</a>
+        <a href="improved.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4">Most Improved</a>
+        <a href="hearted.html" class="main-btn rounded-full text-xl font-bold font-mono px-8 py-4 bg-pink-600">My Hearted Tickers</a>
+    </nav>
+    <div class="w-full max-w-2xl mx-auto p-8 glass mt-4">
+        <h1 class="text-3xl font-extrabold mb-6 text-pink-400 drop-shadow-lg">My Hearted Tickers</h1>
+        <div id="hearted-list" class="space-y-4"></div>
+        <div id="no-hearted" class="text-gray-400 text-lg mt-8 hidden">You haven't hearted any tickers yet.</div>
+    </div>
+    <script>
+    async function loadHeartedTickers() {
+        try {
+            const res = await fetch('/api/favorites');
+            if (res.ok) {
+                const data = await res.json();
+                const tickers = data.favorites;
+                const list = document.getElementById('hearted-list');
+                const noHearted = document.getElementById('no-hearted');
+                list.innerHTML = '';
+                if (tickers.length === 0) {
+                    noHearted.classList.remove('hidden');
+                } else {
+                    noHearted.classList.add('hidden');
+                    tickers.forEach(ticker => {
+                        list.innerHTML += `
+                            <div class="flex items-center justify-between bg-gradient-to-r from-indigo-900 via-purple-900 to-gray-900 rounded-xl px-6 py-4 shadow-lg">
+                                <span class="text-2xl font-bold text-indigo-200">${ticker}</span>
+                                <button class="heart filled" title="Remove from favorites" onclick="unheartTicker('${ticker}')">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="currentColor" viewBox="0 0 24 24"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41 0.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                                </button>
+                            </div>
+                        `;
+                    });
+                }
+            } else if (res.status === 401) {
+                document.getElementById('hearted-list').innerHTML = '<div class="text-lg text-pink-400">Please log in to view your hearted tickers.</div>';
+            }
+        } catch {
+            document.getElementById('hearted-list').innerHTML = '<div class="text-lg text-red-400">Error loading hearted tickers.</div>';
+        }
+    }
+    window.unheartTicker = async function(ticker) {
+        await fetch('/api/favorite', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ticker })
+        });
+        loadHeartedTickers();
+    }
+    loadHeartedTickers();
+    </script>
+</body>
+</html>
