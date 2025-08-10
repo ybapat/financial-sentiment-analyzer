@@ -19,8 +19,8 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 
 # --- 1. LOAD THE TRAINED MODEL AND VECTORIZER ---
 print("Loading model and vectorizer...")
-model = joblib.load('backend/sentiment_model.pkl')
-vectorizer = joblib.load('backend/tfidf_vectorizer.pkl')
+model = joblib.load('sentiment_model.pkl')
+vectorizer = joblib.load('tfidf_vectorizer.pkl')
 print("Model and vectorizer loaded successfully.")
 
 # Import the text cleaning function from your other script
@@ -28,7 +28,7 @@ print("Model and vectorizer loaded successfully.")
 from sentiment_analysis import clean_text
 
 # --- DATABASE SETUP ---
-DATABASE_FILE = 'backend/sentiment_history.db'
+DATABASE_FILE = 'sentiment_history.db'
 
 def init_db():
     """Initializes the database and creates the table if it doesn't exist."""
