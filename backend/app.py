@@ -3,7 +3,10 @@
 import praw
 import joblib
 import pandas as pd
-import config # Your API keys
+#import config # Your API keys
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, jsonify, send_from_directory, request, session
 from flask_cors import CORS
 import sqlite3

@@ -7,6 +7,8 @@ import sqlite3
 import json
 import joblib
 from sentiment_analysis import clean_text
+from dotenv import load_dotenv
+load_dotenv()
 
 DB_PATH = 'backend/sentiment_history.db'
 MODEL_PATH = 'backend/sentiment_model.pkl'
