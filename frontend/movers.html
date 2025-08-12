@@ -57,38 +57,52 @@
         async function loadMovers() {
             const moversList = document.getElementById('movers-list');
             try {
-                // Fetch data directly from the new /api/movers endpoint
-                const response = await fetch(`${backendUrl}/api/movers`);
-                if (!response.ok) {
-                    throw new Error('Failed to load data from the server.');
+                // Fetch all tickers from the main analysis endpoint
+                const response = await fetch(`${backendUrl}/api/analyze`);
+                const data = await response.json();
+                
+                // For each ticker, fetch its history and calculate change
+                const tickers = Object.keys(data);
+                let movers = [];
+                for (const ticker of tickers) {
+                    try {
+                        const histRes = await fetch(`${backendUrl}/api/history/${ticker}`);
+                        const histData = await histRes.json();
+                        const scores = histData.scores;
+                        if (scores.length < 2) continue;
+                        // Compare last score to previous score
+                        const change = scores[scores.length-1] - scores[scores.length-2];
+                        movers.push({ ticker, change, score: scores[scores.length-1], sentiment: data[ticker].sentiment });
+                    } catch {}
                 }
-                const movers = await response.json();
-
-                if (movers.length === 0) {
+                // Sort by absolute change, show top 5
+                movers.sort((a, b) => Math.abs(b.change) - Math.abs(a.change));
+                const topMovers = movers.slice(0, 5);
+                
+                if (topMovers.length === 0) {
                     moversList.innerHTML = '<p class="text-gray-500">Not enough historical data to calculate movers yet. Check back later!</p>';
                     return;
                 }
-                
-                moversList.innerHTML = movers.map(m => {
+
+                moversList.innerHTML = topMovers.map(m => {
                     const changeColor = m.change > 0 ? 'text-green-400' : 'text-red-400';
                     const changeSign = m.change > 0 ? '+' : '';
                     return `
-                        <div class="p-4 rounded-xl bg-gray-800/50 shadow-lg flex items-center justify-between border border-gray-700">
+                        <div class="p-4 rounded-xl bg-gray-800/50 shadow-lg flex flex-col md:flex-row items-center justify-between border border-gray-700">
                             <div class="flex flex-col items-start">
                                 <span class="text-2xl font-bold text-white">${m.ticker}</span>
-                                <span class="text-md text-gray-400">Current Score: ${m.score.toFixed(2)}</span>
+                                <span class="text-lg text-gray-200">${m.sentiment} &bull; Score: ${m.score.toFixed(2)}</span>
                             </div>
                             <span class="text-xl font-semibold ${changeColor}">${changeSign}${m.change.toFixed(2)} change</span>
                         </div>
                     `;
                 }).join('');
-
             } catch (error) {
                 console.error("Error loading movers:", error);
                 moversList.innerHTML = '<p class="text-red-400">Could not load data. Please try again later.</p>';
             }
         }
-
+        
         // Load the data when the page loads
         document.addEventListener('DOMContentLoaded', loadMovers);
     </script>
