@@ -1,5 +1,4 @@
 import praw
-import config
 import pandas as pd
 import os
 import time
@@ -10,7 +9,6 @@ from sentiment_analysis import clean_text
 from dotenv import load_dotenv
 load_dotenv()
 
-import os
 import sys
 
 # Always use absolute paths relative to this script
@@ -45,9 +43,9 @@ vectorizer = joblib.load(VECTORIZER_PATH)
 
 # Reddit API setup
 reddit = praw.Reddit(
-    client_id=config.CLIENT_ID,
-    client_secret=config.CLIENT_SECRET,
-    user_agent=config.USER_AGENT,
+    client_id=os.environ.get('CLIENT_ID'),
+    client_secret=os.environ.get('CLIENT_SECRET'),
+    user_agent=os.environ.get('USER_AGENT'),
 )
 
 subreddit_names = ["stocks", "stockmarket", "investing", "wallstreetbets",
