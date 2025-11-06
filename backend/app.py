@@ -123,11 +123,6 @@ def load_user(user_id):
         return User(*row)
     return None
 
-# NEW: Add a root route to check if the server is running
-@app.route('/')
-def index():
-    return jsonify({"status": "API is running successfully"})
-
 # --- 3. CREATE THE API ENDPOINT ---
 @app.route('/api/analyze', methods=['GET'])
 def analyze_sentiment():
