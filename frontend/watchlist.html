@@ -24,8 +24,14 @@
         <div id="watchlist-message" class="text-center text-gray-400 mt-8"></div>
     </div>
     <script>
+    // Set your backend URL here (deployed or local)
+    const backendUrl = 'https://your-backend-url.onrender.com'; // <-- update to your deployed backend
+
     async function loadWatchlist() {
-        const res = await fetch('/api/watchlist');
+        const res = await fetch(`${backendUrl}/api/watchlist`, {
+            method: 'GET',
+            credentials: 'include'
+        });
         if (!res.ok) {
             document.getElementById('watchlist-message').textContent = 'Please log in to view your watchlist.';
             return;
@@ -39,7 +45,10 @@
         let grid = '';
         for (const ticker of tickers) {
             try {
-                const infoRes = await fetch(`/api/analyze`);
+                const infoRes = await fetch(`${backendUrl}/api/analyze`, {
+                    method: 'GET',
+                    credentials: 'include'
+                });
                 const infoData = await infoRes.json();
                 const stock = infoData[ticker];
                 if (!stock) continue;
@@ -60,11 +69,12 @@
         document.getElementById('watchlist-grid').innerHTML = grid;
     }
     async function removeFromWatchlist(ticker, btnEl) {
-        const url = '/api/watchlist/remove';
+        const url = `${backendUrl}/api/watchlist/remove`;
         btnEl.disabled = true;
         fetch(url, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ ticker }),
         })
         .then(res => res.json())

@@ -100,7 +100,7 @@ def load_tickers_from_csv(filename):
 # Set static_folder to the frontend directory (relative to backend/app.py)
 app = Flask(__name__, static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')), static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY')
-CORS(app) # This is important to allow your frontend to make requests to this backend
+CORS(app, supports_credentials=True)  # Enable CORS with credentials for cross-domain auth
 
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -290,6 +290,13 @@ def remove_watchlist():
         c.execute("SELECT ticker FROM user_watchlist WHERE user_id=?", (current_user.id,))
         tickers = [row[0] for row in c.fetchall()]
     return jsonify({'success': True, 'watchlist': tickers})
+
+# --- CRON/HTTP TRIGGER ENDPOINT FOR ANALYSIS ---
+@app.route('/api/trigger-analysis', methods=['POST'])
+def trigger_analysis():
+    import subprocess
+    subprocess.Popen(['python', 'run_analysis.py'])
+    return {'success': True}
 
 # Serve index.html at root
 @app.route('/')

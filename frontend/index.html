@@ -219,7 +219,7 @@
 
         async function fetchUserFavorites() {
             try {
-                const res = await fetch(`${backendUrl}/api/favorites`);
+                const res = await fetch(`${backendUrl}/api/favorites`, { credentials: 'include' });
                 if (res.ok) {
                     const data = await res.json();
                     userFavorites = data.favorites;
@@ -236,7 +236,7 @@
 
         async function fetchUserWatchlist() {
             try {
-                const res = await fetch(`${backendUrl}/api/watchlist`);
+                const res = await fetch(`${backendUrl}/api/watchlist`, { credentials: 'include' });
                 if (res.ok) {
                     const data = await res.json();
                     userWatchlist = data.watchlist;
@@ -251,7 +251,7 @@
         // --- User Info Display ---
         async function fetchUserInfo() {
             try {
-                const res = await fetch(`${backendUrl}/api/user`);
+                const res = await fetch(`${backendUrl}/api/user`, { credentials: 'include' });
                 if (res.ok) {
                     const data = await res.json();
                     document.getElementById('user-info').innerHTML = `
@@ -267,7 +267,7 @@
                         </div>
                     `;
                     document.getElementById('logout-btn').onclick = async function() {
-                        await fetch(`${backendUrl}/api/logout`, { method: 'POST' });
+                        await fetch(`${backendUrl}/api/logout`, { method: 'POST', credentials: 'include' });
                         fetchUserInfo();
                         fetchUserFavorites();
                         fetchUserWatchlist();
@@ -569,6 +569,7 @@
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({ ticker }),
+                credentials: 'include',
             })
             .then(res => res.json())
             .then(data => {

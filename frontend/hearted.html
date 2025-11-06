@@ -58,9 +58,15 @@
         <div id="no-hearted" class="text-gray-400 text-lg mt-8 hidden">You haven't hearted any tickers yet.</div>
     </div>
     <script>
+    // Set your backend URL here (deployed or local)
+    const backendUrl = 'https://your-backend-url.onrender.com'; // <-- update to your deployed backend
+
     async function loadHeartedTickers() {
         try {
-            const res = await fetch('/api/favorites');
+            const res = await fetch(`${backendUrl}/api/favorites`, {
+                method: 'GET',
+                credentials: 'include'
+            });
             if (res.ok) {
                 const data = await res.json();
                 const tickers = data.favorites;
@@ -90,9 +96,10 @@
         }
     }
     window.unheartTicker = async function(ticker) {
-        await fetch('/api/favorite', {
+        await fetch(`${backendUrl}/api/favorite`, {
             method: 'DELETE',
             headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify({ ticker })
         });
         loadHeartedTickers();
@@ -101,3 +108,4 @@
     </script>
 </body>
 </html>
+``` 
