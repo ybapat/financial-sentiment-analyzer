@@ -295,13 +295,11 @@ def remove_watchlist():
 def trigger_analysis():
     import subprocess
     import sys
-    # Run the script and capture output for debugging
-    result = subprocess.run([sys.executable, 'run_analysis.py'], capture_output=True, text=True)
-    return {
-        'success': result.returncode == 0,
-        'stdout': result.stdout,
-        'stderr': result.stderr
-    }
+    # Run the script in the background and log output to a file
+    log_path = os.path.join(os.path.dirname(__file__), 'analysis.log')
+    with open(log_path, 'a') as log_file:
+        subprocess.Popen([sys.executable, 'run_analysis.py'], stdout=log_file, stderr=log_file)
+    return {'success': True, 'message': 'Analysis started in background. Check analysis.log for output.'}
 
 # Serve index.html at root
 @app.route('/')
