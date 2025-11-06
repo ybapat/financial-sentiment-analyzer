@@ -10,19 +10,23 @@ from sentiment_analysis import clean_text
 from dotenv import load_dotenv
 load_dotenv()
 
-DB_PATH = 'backend/sentiment_history.db'
-MODEL_PATH = 'backend/sentiment_model.pkl'
-VECTORIZER_PATH = 'backend/tfidf_vectorizer.pkl'
+import os
+import sys
+
+# Always use absolute paths relative to this script
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(BASE_DIR, 'sentiment_history.db')
+MODEL_PATH = os.path.join(BASE_DIR, 'sentiment_model.pkl')
+VECTORIZER_PATH = os.path.join(BASE_DIR, 'tfidf_vectorizer.pkl')
 
 # Load tickers
 def load_tickers_from_csv(filename):
     try:
-        if os.path.exists(filename):
-            df = pd.read_csv(filename)
-        elif os.path.exists(os.path.join('backend', filename)):
-            df = pd.read_csv(os.path.join('backend', filename))
+        abs_path = filename if os.path.isabs(filename) else os.path.join(BASE_DIR, filename)
+        if os.path.exists(abs_path):
+            df = pd.read_csv(abs_path)
         else:
-            print(f"Error: The file {filename} was not found.")
+            print(f"Error: The file {abs_path} was not found.")
             return set()
         tickers = set(df['Symbol'].unique())
         return tickers
