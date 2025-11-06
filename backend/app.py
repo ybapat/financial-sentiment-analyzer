@@ -100,6 +100,10 @@ def load_tickers_from_csv(filename):
 # Set static_folder to the frontend directory (relative to backend/app.py)
 app = Flask(__name__, static_folder=os.path.abspath(os.path.join(os.path.dirname(__file__), '../frontend')), static_url_path='')
 app.secret_key = os.environ.get('SECRET_KEY')
+# --- SESSION COOKIE SETTINGS FOR CROSS-DOMAIN AUTH ---
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
 CORS(app, supports_credentials=True)  # Enable CORS with credentials for cross-domain auth
 
 login_manager = LoginManager()
