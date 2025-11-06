@@ -294,8 +294,14 @@ def remove_watchlist():
 @app.route('/api/trigger-analysis', methods=['POST', 'GET'])
 def trigger_analysis():
     import subprocess
-    subprocess.Popen(['python', 'run_analysis.py'])
-    return {'success': True}
+    import sys
+    # Run the script and capture output for debugging
+    result = subprocess.run([sys.executable, 'run_analysis.py'], capture_output=True, text=True)
+    return {
+        'success': result.returncode == 0,
+        'stdout': result.stdout,
+        'stderr': result.stderr
+    }
 
 # Serve index.html at root
 @app.route('/')
