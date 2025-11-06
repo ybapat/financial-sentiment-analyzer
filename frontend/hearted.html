@@ -59,7 +59,23 @@
     </div>
     <script>
     // Set your backend URL here (deployed or local)
-    const backendUrl = 'https://your-backend-url.onrender.com'; // <-- update to your deployed backend
+    const backendUrl = 'https://bullai.onrender.com'; // <-- update to your deployed backend
+
+    // Detect if third-party cookies are blocked (common in Incognito)
+    function checkThirdPartyCookies() {
+        document.cookie = "testcookie=1; SameSite=None; Secure";
+        const cookiesEnabled = document.cookie.indexOf("testcookie=1") !== -1;
+        if (!cookiesEnabled) {
+            const warning = document.createElement('div');
+            warning.className = 'text-lg text-yellow-400 bg-gray-900 rounded-xl p-4 mb-4 text-center';
+            warning.innerHTML =
+                '⚠️ Third-party cookies are blocked in your browser (common in Incognito/private mode). Login and favorites may not work. Please enable third-party cookies or use a normal browser window.';
+            document.body.insertBefore(warning, document.body.firstChild);
+        }
+        // Clean up test cookie
+        document.cookie = "testcookie=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+    }
+    checkThirdPartyCookies();
 
     async function loadHeartedTickers() {
         try {
@@ -108,4 +124,3 @@
     </script>
 </body>
 </html>
-``` 
