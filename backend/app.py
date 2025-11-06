@@ -291,7 +291,7 @@ def remove_watchlist():
     return jsonify({'success': True, 'watchlist': tickers})
 
 # --- CRON/HTTP TRIGGER ENDPOINT FOR ANALYSIS ---
-@app.route('/api/trigger-analysis', methods=['POST'])
+@app.route('/api/trigger-analysis', methods=['POST', 'GET'])
 def trigger_analysis():
     import subprocess
     subprocess.Popen(['python', 'run_analysis.py'])
