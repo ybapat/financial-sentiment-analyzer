@@ -47,8 +47,9 @@
         <div id="trending-list" class="space-y-6"></div>
     </div>
     <script>
+    const backendUrl = 'https://bullai.onrender.com'; // <-- Set your Render backend URL here
     async function loadTrending() {
-        const response = await fetch('/api/analyze');
+        const response = await fetch(backendUrl + '/api/analyze');
         const data = await response.json();
         // Sort by mentions, get top 5
         const topTickers = Object.entries(data)

@@ -47,16 +47,17 @@
         <div id="improved-list" class="space-y-6"></div>
     </div>
     <script>
+    const backendUrl = 'https://bullai.onrender.com'; // <-- Set your Render backend URL here
     async function loadImproved() {
         // Fetch all tickers' history for the last 2 hours
-        const response = await fetch('/api/analyze');
+        const response = await fetch(backendUrl + '/api/analyze');
         const data = await response.json();
         // For each ticker, fetch its history and calculate change
         const tickers = Object.keys(data);
         let improved = [];
         for (const ticker of tickers) {
             try {
-                const histRes = await fetch(`/api/history/${ticker}`);
+                const histRes = await fetch(backendUrl + `/api/history/${ticker}`);
                 const histData = await histRes.json();
                 const scores = histData.scores;
                 if (scores.length < 2) continue;

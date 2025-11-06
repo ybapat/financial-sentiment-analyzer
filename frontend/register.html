@@ -65,6 +65,7 @@
         <div id="register-message" class="mt-4 text-center text-sm"></div>
     </div>
     <script>
+        const backendUrl = 'https://bullai.onrender.com'; // <-- Set your Render backend URL here
         document.getElementById('register-form').addEventListener('submit', async function(e) {
             e.preventDefault();
             const username = document.getElementById('username').value;
@@ -73,7 +74,7 @@
             const messageEl = document.getElementById('register-message');
             messageEl.textContent = '';
             try {
-                const res = await fetch('/api/register', {
+                const res = await fetch(backendUrl + '/api/register', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username, email, password })
